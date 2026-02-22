@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+    <title>Olymp Stop Robot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        .reset-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .save-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="app-header">
+            <button id="btn-back" class="back-btn hidden">←</button>
+
+            <div class="title-group">
+                <img src="icon-192.png" class="logo" />
+                <h1 class="app-title">Configurações</h1>
+            </div>
+        </div>
+
+        <div class="config" id="configScreen">
+            <div class="section">
+                <label>URL da plataforma</label>
+                <input type="text" id="platformUrl" class="config-input" placeholder="https://site.com"
+                    value="https://olympmatix.com/app/dashboard" />
+
+                <label>Texto botão Iniciar</label>
+                <input type="text" id="startText" class="config-input" placeholder="Iniciar robô" value="Iniciar" />
+
+                <label>Texto botão Parar</label>
+                <input type="text" id="stopText" class="config-input" placeholder="Parar robô" value="Parar" />
+            </div>
+            <div class="divider"></div>
+            <div class="section">
+
+                <label for="balanceValue">Parar por saldo</label>
+                <input type="text" id="balanceValue" inputmode="decimal" placeholder="0,00" autocomplete="off" />
+            </div>
+
+            <div class="section">
+                <label for="lossValue">Para por Derrotas Seguidas</label>
+                <input type="number" id="lossValue" placeholder="Quantidade">
+            </div>
+
+            <div class="section">
+                <label for="stopTime">Parar por Tempo</label>
+                <input type="time" step="1" id="timeValue">
+            </div>
+            <div class="section-switch">
+                <label class="switch">
+                    <input type="checkbox" id="restartSaldo">
+                    <span class="slider"></span>
+                </label>
+
+                <div class="switch-text">
+                    <div class="title">Reinício Automático Saldo</div>
+                    <div class="desc">Se o robô parar por saldo</div>
+                </div>
+            </div>
+            <div class="section-switch">
+                <label class="switch">
+                    <input type="checkbox" id="restartPerdas">
+                    <span class="slider"></span>
+                </label>
+
+                <div class="switch-text">
+                    <div class="title">Reinício Automático Perdas</div>
+                    <div class="desc">Se o robô parar por perdas</div>
+                </div>
+            </div>
+            <div class="section-switch">
+                <label class="switch">
+                    <input type="checkbox" id="restartTempo">
+                    <span class="slider"></span>
+                </label>
+
+                <div class="switch-text">
+                    <div class="title">Reinício Automático Tempo</div>
+                    <div class="desc">Se o robô parar por tempo</div>
+                </div>
+            </div>
+            <br>
+            <button id="btn-save" class="btn-save" onclick="startMonitoring()">Iniciar Monitoramento</button>
+            <button id="btn-reset" class="btn-reset" onclick="resetConfig()">Limpar Configurações</button>
+
+        </div>
+
+        <div class="panel hidden" id="monitorScreen">
+            <div class="section init-section">
+                <button class="btn-open">Iniciar Plataforma</button>
+                <br>
+                <br>
+                <p>Clique no botão acima para iniciar a plataforma <b>Olymp Matix</b>. Faça o login e depois, clique no
+                    favorito do agente
+                    do robô. Inicie o robô da <b>Olymp Matix</b> e deixe o monitoramento atuar.</p>
+            </div>
+
+            <div class="section status-section hidden">
+                <div class="status-line" style="justify-content: center;">
+                    <span class="timer" id="timeLeft">00:00:00</span>
+                </div>
+                <br>
+                <div class="divider"></div>
+                <div class="status-line">
+                    <span><b>Saldo inicial</b></span>
+                    <span id="balance">$0.00</span>
+                </div>
+                <div class="status-line">
+                    <span><b>Saldo atual</b></span>
+                    <span id="currentBalance">$0.00</span>
+                </div>
+                <div class="status-line">
+                    <span><b>Saldo Alvo</b></span>
+                    <span id="targetBalance" style="color: red;">$0.00</span>
+                </div>
+
+                <div class="status-line">
+                    <span><b>Lucro</b></span>
+                    <span id="currentProfit">$0.00</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="status-line">
+                    <span><b>Vitórias Seguidas</b></span>
+                    <span id="winStreak">0</span>
+                </div>
+
+                <div class="status-line">
+                    <span><b>Perdas Seguidas</b></span>
+                    <span id="lossStreak">0</span>
+                </div>
+                <br>
+                <button id="btn-start" class="btn-save" onclick="restartRobot()">Iniciar Robô</button>
+                <button id="btn-stop" class="btn-stop" onclick="stopManual()">Parar Robô</button>
+
+            </div>
+
+            <div class="section log-section hidden">
+                <div class="log-header">
+                    <h1 class="log-title">Logs</h1>
+                    <button id="clearLogBtn" class="btn-clear">Limpar</button>
+                </div>
+                <div class="divider"></div>
+                <div id="log" class="log-box"></div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <script src="app.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => {
+                        console.log('Service Worker registrado com sucesso:', reg);
+                    })
+                    .catch(err => {
+                        console.log('Falha ao registrar o Service Worker:', err);
+                    });
+            });
+
+        }
+    </script>
+</body>
+
+</html>
