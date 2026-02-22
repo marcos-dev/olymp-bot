@@ -13,7 +13,7 @@ const logEl = document.getElementById('log');
 const platformUrl = document.getElementById('platformUrl');
 const startText = document.getElementById('startText');
 const stopText = document.getElementById('stopText');
-const restartSaldo = document.getElementById('restartSaldo');
+//const restartSaldo = document.getElementById('restartSaldo');
 const restartPerdas = document.getElementById('restartPerdas');
 const restartTempo = document.getElementById('restartTempo');
 
@@ -67,7 +67,7 @@ function carregarConfiguracoes() {
         startText.value = config.startText || "Iniciar robô";
         stopText.value = config.stopText || "Parar robô";
 
-        restartSaldo.checked = config.restart?.saldo ?? false;
+        //restartSaldo.checked = config.restart?.saldo ?? false;
         restartPerdas.checked = config.restart?.perdas ?? false;
         restartTempo.checked = config.restart?.tempo ?? false;
 
@@ -90,7 +90,7 @@ function saveConfig() {
         stopText: document.getElementById('stopText').value,
 
         restart: {
-            saldo: restartSaldo.checked,
+            //saldo: restartSaldo.checked,
             perdas: restartPerdas.checked,
             tempo: restartTempo.checked
         }
@@ -111,7 +111,7 @@ function resetConfig() {
     platformUrl.value = '';
     startText.value = 'Iniciar robô';
     stopText.value = 'Parar robô';
-    restartSaldo.checked = false;
+   // restartSaldo.checked = false;
     restartPerdas.checked = false;
     restartTempo.checked = false;
 
@@ -167,8 +167,8 @@ function atualizarUI() {
 
         const config = JSON.parse(localStorage.getItem('robotConfig'));
 
-        document.querySelector("#winStreak").innerText = winStreak + '/' + (config.vitorias || '-');
-        document.querySelector("#lossStreak").innerText = lossStreak + '/' + (config.perdas || '-');
+        document.getElementById("winStreak").innerText = winStreak + '/' + (config.vitorias || '-');
+        document.getElementById("lossStreak").innerText = lossStreak + '/' + (config.perdas || '-');
     }
 }
 
@@ -202,10 +202,16 @@ function startRobotUi() {
     document.querySelector('.status-section').classList.remove('hidden');
     document.querySelector('.log-section').classList.remove('hidden');
 
+    if (running || robotOperating) {
+        // Esconde botão de start e mostra o de stop
+        document.getElementById('btn-stop').classList.remove('hidden');
+        document.getElementById('btn-start').classList.add('hidden');
+    }
+    else {
+        document.getElementById('btn-start').classList.remove('hidden');
+        document.getElementById('btn-stop').classList.add('hidden');
+    }
 
-    // Esconde botão de start e mostra o de stop
-    document.getElementById('btn-stop').classList.remove('hidden');
-    document.getElementById('btn-start').classList.add('hidden');
 
 }
 
@@ -229,9 +235,9 @@ function startMonitoringUi() {
 
     document.querySelector('.back-btn').classList.remove('hidden');
     document.querySelector('.app-header').classList.add('display-flex');
-    document.querySelector('.app-title').textContent = "Monitoramento"; 
+    document.querySelector('.app-title').textContent = "Monitoramento";
 
-    document.getElementById('targetBalance').innerText = parseCurrencyBR(document.getElementById('balanceValue').value).toLocaleString('pt-BR', { minimumFractionDigits: 2 }); 
+    document.getElementById('targetBalance').innerText = parseCurrencyBR(document.getElementById('balanceValue').value).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
 }
 
@@ -250,7 +256,7 @@ function stopMonitoringUi() {
     document.querySelector('.back-btn').classList.add('hidden');
     document.querySelector('.app-header').classList.remove('display-flex');
     document.querySelector('.app-title').textContent = "Configuração";
-    
+
 }
 
 //Exibe logs

@@ -20,6 +20,16 @@
     }
   });
 
+  
+  let ignoreNextChange = false;
+  window.addEventListener("message", (e) => {
+
+    if (e.data?.type === "START_ROBOT") {
+        ignoreNextChange = true;
+    }
+
+});
+
   window.__robotRunning = true;
 
   /* =========================
@@ -65,7 +75,7 @@
         return;
       }
 
-      const balance = extractBalance();
+      const balance = parseFloat(extractBalance().toFixed(2));
       if (balance == null) return;
 
       // saldo mudou → reinicia contagem
@@ -114,45 +124,60 @@
   /* =========================
      DETECÇÃO POR VARIAÇÃO DE SALDO
   ========================= */
-  let lastKnownBalance = null;
-  let pendingBalance = null;
-  let stableTimer = null;
+  let lastProcessedBalance = null;
+  let balanceCandidate = null;
+  let balanceTimer = null;
+  let processedBalances = new Set();
 
-  function monitorBalance() {
+  function monitorBalanceChange() {
 
-    const current = extractBalance();
-    if (current == null) return;
+    const balance = extractBalance();
+    if (balance == null) return;
 
     // primeira leitura
-    if (lastKnownBalance === null) {
-      lastKnownBalance = current;
+    if (lastProcessedBalance === null) {
+      lastProcessedBalance = balance;
       return;
     }
 
-    // saldo mudou → esperar estabilizar
-    if (current !== pendingBalance) {
+    if (balance !== balanceCandidate) {
 
-      pendingBalance = current;
+      balanceCandidate = balance;
 
-      if (stableTimer) clearTimeout(stableTimer);
+      if (balanceTimer) clearTimeout(balanceTimer);
 
-      stableTimer = setTimeout(() => {
+      balanceTimer = setTimeout(() => {
 
-        // confirma mudança real
-        if (pendingBalance === lastKnownBalance) return;
+        // se já processamos esse saldo, ignora
+        if (processedBalances.has(balanceCandidate)) return;
 
-        const diff = pendingBalance - lastKnownBalance;
-        const result = diff > 0 ? "WIN" : diff < 0 ? "LOSS" : "DRAW";
+        if (balanceCandidate === lastProcessedBalance) return;
 
-        lastKnownBalance = pendingBalance;
+        const result = balanceCandidate > lastProcessedBalance ? "WIN" : balanceCandidate < lastProcessedBalance ? "LOSS" : "DRAW";
 
-        send("RESULT", { result, balance: pendingBalance });
+        lastProcessedBalance = balanceCandidate;
+        processedBalances.add(balanceCandidate);
 
-      }, 1400); // tempo da animação da plataforma
+        console.log("Operação confirmada única:", result, balanceCandidate);
+
+        send("RESULT", {
+          result,
+          balance: balanceCandidate
+        });
+
+        // mantém apenas últimos 20 saldos para evitar crescimento infinito
+        if (processedBalances.size > 20) {
+          processedBalances = new Set(
+            Array.from(processedBalances).slice(-10)
+          );
+        }
+
+      }, 1500);
+
     }
   }
 
-  setInterval(monitorBalance, 350);
+  setInterval(monitorBalanceChange, 350);
 
   /* =========================
      FUNÇÕES DE CLIQUE

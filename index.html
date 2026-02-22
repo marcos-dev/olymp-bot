@@ -99,7 +99,8 @@
                 <label for="stopTime">Parar por Tempo</label>
                 <input type="time" step="1" id="timeValue">
             </div>
-            <div class="section-switch">
+            <!--Não faz sentido, era pra reiniciar o robô por perdas para saldo. Entra em loop infito porque o limite de perdas e saldo é o mesmo-->
+            <!-- <div class="section-switch">
                 <label class="switch">
                     <input type="checkbox" id="restartSaldo">
                     <span class="slider"></span>
@@ -109,7 +110,7 @@
                     <div class="title">Reinício Automático Saldo</div>
                     <div class="desc">Se o robô parar por saldo</div>
                 </div>
-            </div>
+            </div> -->
             <div class="section-switch">
                 <label class="switch">
                     <input type="checkbox" id="restartPerdas">
@@ -155,15 +156,15 @@
                 <br>
                 <div class="divider"></div>
                 <div class="status-line">
-                    <span><b>Saldo inicial</b></span>
+                    <span><b>Saldo Inicial</b></span>
                     <span id="balance">$0.00</span>
                 </div>
                 <div class="status-line">
-                    <span><b>Saldo atual</b></span>
+                    <span><b>Saldo Atual</b></span>
                     <span id="currentBalance">$0.00</span>
                 </div>
                 <div class="status-line">
-                    <span><b>Saldo Alvo</b></span>
+                    <span><b>Saldo Alvo (stop)</b></span>
                     <span id="targetBalance" style="color: red;">$0.00</span>
                 </div>
 
@@ -184,7 +185,7 @@
                     <span id="lossStreak">0</span>
                 </div>
                 <br>
-                <button id="btn-start" class="btn-save" onclick="restartRobot()">Iniciar Robô</button>
+                <button id="btn-start" class="btn-save" onclick="startRobot()">Iniciar Robô</button>
                 <button id="btn-stop" class="btn-stop" onclick="stopManual()">Parar Robô</button>
 
             </div>

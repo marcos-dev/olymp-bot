@@ -43,22 +43,35 @@ window.addEventListener("message", (e) => {
     if (e.data.type === "BALANCE") {
 
         currentBalance = e.data.value;
+        initialBalance = e.data.value;
+
         running = true;
+        robotOperating = true;
         const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");
+
         robotWindow.postMessage({
             type: "CONFIG",
             startText: cfg.startText,
             stopText: cfg.stopText
         }, "*");
 
+        log(new Date().toLocaleDateString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }) + " | " + 'Sessão iniciada' + " | " + currentBalance.toFixed(2));
+
         startRobotUi();
         iniciarTimer();
         atualizarUI();
+
+        // Verificar condições de parada após cada resultado
+        checkStopConditions();
     }
 
     if (e.data.type === "RESULT") {
 
-        if (initialBalance === null) {
+        if (initialBalance === null && manualStop === false) {
             startNewSession(e.data.balance);
         }
 
@@ -75,16 +88,20 @@ window.addEventListener("message", (e) => {
         }
 
         atualizarUI(); // Garantir que a interface atualize após o resultado
+
         // Exibir log do resultado
         log(new Date().toLocaleDateString('pt-BR', {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
         }) + " | " + e.data.result + " | " + currentBalance.toFixed(2));
+
         // Verificar condições de parada após cada resultado
         checkStopConditions();
-
     }
+
+
+
 });
 
 //watchdog
@@ -95,7 +112,7 @@ setInterval(() => {
 
     const idle = Date.now() - lastRobotActivity;
 
-    if (idle > 12000) {
+    if (idle > 920000) {  // 15 minutos
 
         log("⛔ Robô sem atividade detectada");
         robotOperating = false;
@@ -110,9 +127,6 @@ function startNewSession(balance) {
 
     initialBalance = balance;
     currentBalance = balance;
-
-    winStreak = 0;
-    lossStreak = 0;
 
     log("Nova sessão iniciada | Saldo: $" + balance.toFixed(2));
 
@@ -129,7 +143,7 @@ function abrirPlataforma() {
         return;
     }
 
-    robotWindow = window.open(cfg.platformUrl, "_blank");
+    robotWindow = window.open(cfg.platformUrl, "robotWindow");
 
     if (!robotWindow) {
         alert("Permita popups para usar o robô");
@@ -195,7 +209,7 @@ function checkStopConditions() {
     const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");
 
     // --- STOP POR SALDO ---
-    if (cfg.stopBalance && currentBalance <= cfg.valor) {
+    if (cfg.valor && currentBalance <= cfg.valor) {
         stopRobot("Stop Loss atingido", "saldo");
         return;
     }
@@ -207,18 +221,36 @@ function checkStopConditions() {
     // }
 
     // --- STOP LOSS POR PERDAS ---
-    if (cfg.stopLosses && lossStreak >= cfg.perdas) {
+    if (cfg.perdas && lossStreak >= cfg.perdas) {
         stopRobot("Máximo de perdas", "perdas");
+        winStreak = 0;
+        lossStreak = 0;
+        atualizarUI();
         return;
     }
 }
 
 function startMonitoring() {
-
-    startMonitoringUi();
-
     // Salva as configurações
     saveConfig();
+
+    startMonitoringUi();
+    atualizarUI();
+}
+
+function startRobot() {
+
+    robotOperating = true;
+    running = true;  // ← começa aqui
+    lastRobotActivity = Date.now();
+
+    robotWindow.postMessage({
+        type: "START_ROBOT"
+    }, "*");
+
+
+    startRobotUi();
+    iniciarTimer();
 }
 
 function restartRobot() {
@@ -228,13 +260,16 @@ function restartRobot() {
         return;
     }
 
-    initialBalance = null; // ← ESSENCIAL
+    // força sincronização de saldo
+    initialBalance = currentBalance;
+
 
     log("♻️ Reiniciando robô");
 
     robotOperating = true;   // ← começa aqui
     lastRobotActivity = Date.now();
 
+    atualizarUI();
     robotWindow.postMessage({
         type: "START_ROBOT"
     }, "*");
@@ -269,14 +304,16 @@ function stopRobot(reason, stopType) {
     const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");
 
     const allowRestart =
-        (stopType === "saldo" && cfg.restart?.saldo) ||
+        // (stopType === "saldo" && cfg.restart?.saldo) ||
         (stopType === "perdas" && cfg.restart?.perdas) ||
         (stopType === "tempo" && cfg.restart?.tempo);
 
     if (allowRestart) {
         log("🔄 Reinício automático autorizado para: " + stopType);
-        setTimeout(restartRobot, 4000);
+        setTimeout(restartRobot, 3000); // Reinicia após 3 segundos
     }
+
+    running = true;
 
     clearInterval(timerInterval);
     localStorage.removeItem("robotEndTime");
@@ -284,6 +321,8 @@ function stopRobot(reason, stopType) {
 
 
 function stopManual(reason) {
+    manualStop = true;
+    allowRestart = false; // Impede reinício automático após parada manual
     stopRobot(reason ? reason : "Parado pelo usuário", false);
     resetTimer(); // Permitir reiniciar manualmente após parar
 }
