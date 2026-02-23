@@ -7,11 +7,40 @@ Acesse online:
 👉 https://marcos-dev.github.io/olymp-bot/
 
 📸 Preview
-Configuração
+ <p align="center"> 
+    <img src="config1.png" alt="screen">
+    <img src="config2" alt="screen">
+    <img src="monitor1.png" alt="screen">
+    <img src="monitor2" alt="screen">
+ </p>
 
-Monitoramento
+ <h3 align="center">  
+  <a href="#information_source-sobre">Sobre</a> |
+  <a href="#rocket-tecnologias">Tecnologias</a> |  
+  <a href="#rocket-funcionalidades">Tecnologias</a> |  
+  <a href="#gear-uso">Ferramentas</a> |
+  <a href="#observações">Licença</a> |
+  <a href="#licença">Licença</a> 
+</h3>
 
-🚀 Funcionalidades
+## :information_source: Sobre
+
+Projeto de um riobô trader em Javascript<br>
+Project for a Javascript trading robot.
+
+## :rocket: Tecnologias
+
+HTML5
+
+CSS3
+
+Vanilla JavaScript
+
+Service Worker (PWA)
+
+Comunicação via postMessage
+
+## :rocket: Funcionalidades
 
 Monitoramento de saldo em tempo real
 
@@ -31,7 +60,7 @@ Interface responsiva
 
 Instalável como aplicativo (PWA)
 
-⚙️ Como Usar
+## :gear: Uso
 
 Configure os critérios desejados
 
@@ -57,19 +86,7 @@ iPhone (Safari)
 
 Compartilhar → Adicionar à Tela de Início
 
-🛠 Tecnologias
-
-HTML5
-
-CSS3
-
-Vanilla JavaScript
-
-Service Worker (PWA)
-
-Comunicação via postMessage
-
-⚠️ Observações
+## ⚠️: Observações
 
 Se a plataforma ou navegador forem fechados, será necessário abrir novamente e ativar o favorito.
 
@@ -77,6 +94,5 @@ O app não altera estratégia, apenas monitora e controla iniciar/parar.
 
 Limitações de reconexão são impostas pelo navegador por segurança.
 
-📄 License
-
-Uso privado.
+## Licença
+Esse projeto está sob a licença MIT.
