@@ -9,9 +9,9 @@ Acesse online:
 📸 Preview
  <p align="center"> 
     <img src="config1.png" alt="screen">
-    <img src="config2" alt="screen">
+    <img src="config2.png" alt="screen">
     <img src="monitor1.png" alt="screen">
-    <img src="monitor2" alt="screen">
+    <img src="monitor2.png" alt="screen">
  </p>
 
  <h3 align="center">  
