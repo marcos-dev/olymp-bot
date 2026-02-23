@@ -17,9 +17,9 @@ Acesse online:
  <h3 align="center">  
   <a href="#information_source-sobre">Sobre</a> |
   <a href="#rocket-tecnologias">Tecnologias</a> |  
-  <a href="#rocket-funcionalidades">Tecnologias</a> |  
-  <a href="#gear-uso">Ferramentas</a> |
-  <a href="#observações">Licença</a> |
+  <a href="#rocket-funcionalidades">Funcionalidades</a> |  
+  <a href="#gear-uso">Como Usar</a> |
+  <a href="#observações">Observações</a> |
   <a href="#licença">Licença</a> 
 </h3>
 
