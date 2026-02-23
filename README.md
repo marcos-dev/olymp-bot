@@ -86,7 +86,7 @@ iPhone (Safari)
 
 Compartilhar → Adicionar à Tela de Início
 
-## ⚠️: Observações
+## :⚠️: Observações
 
 Se a plataforma ou navegador forem fechados, será necessário abrir novamente e ativar o favorito.
 
