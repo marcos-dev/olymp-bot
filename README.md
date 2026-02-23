@@ -25,7 +25,7 @@ Acesse online:
 
 ## :information_source: Sobre
 
-Projeto de um riobô trader em Javascript<br>
+Projeto de um robô trader em Javascript<br>
 Project for a Javascript trading robot.
 
 ## :rocket: Tecnologias
