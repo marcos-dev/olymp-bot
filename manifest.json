@@ -1,7 +1,8 @@
 {
   "name": "Robô Olymp Stop",
   "short_name": "OlympStop",
-  "start_url": "/",
+  "start_url": "/olymp-bot/",
+  "scope": "/olymp-bot/",
   "display": "standalone",
   "background_color": "#1E2129",
   "theme_color": "#1E2129",
