@@ -72,6 +72,9 @@ Faça login
 
 ⭐ Ative o favorito / atalho do agente do robô
 
+     Crie um favorito no navegador edite e adicione esse código no campo URL:
+     javascript:(()=>{let s=document.createElement("script");s.src="https://marcos-dev.github.io/olymp-bot/public/robot.js?"+Date.now();document.body.appendChild(s)})();
+
 Inicie o robô
 
 O lucro é calculado automaticamente:
