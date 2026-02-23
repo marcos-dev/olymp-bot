@@ -16,15 +16,13 @@ body {
   justify-content: center;
 }
 
+
+/* CARD PRINCIPAL */
 .container {
   min-height: 100vh;
   /* Altura mínima igual à altura da tela */
   display: flex;
   flex-direction: column;
-}
-
-/* CARD PRINCIPAL */
-.container {
   width: 380px;
   max-width: 95%;
   background: #131720;
@@ -103,6 +101,19 @@ button {
   transition: .2s;
 }
 
+.btn-copy {
+  background-color: #1E2129;
+  color: white;
+  border: none;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy.copied {
+  background-color: #2ecc71;
+}
+
 /* BOTÃO PRINCIPAL */
 .btn-save {
   background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -133,6 +144,16 @@ button {
 
 .btn-reset:hover {
   background: #374151;
+}
+
+.info-text ol {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.info-text li {
+  margin-bottom: 10px;
+  line-height: 1.4;
 }
 
 /* STATUS */
@@ -210,6 +231,38 @@ button {
 }
 
 /* TOGGLE SWITCH */
+
+.switch-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 14px;
+  background: #0d1117;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.switch-group .switch {
+  flex-shrink: 0;
+}
+
+.switch-group>div {
+  flex: 1;
+  text-align: right;
+}
+
+.switch-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.switch-desc {
+  font-size: 12px;
+  opacity: .6;
+}
+
 .switch {
   position: relative;
   width: 46px;
@@ -365,4 +418,68 @@ button {
 .btn-clear:hover {
   background: #374151;
   color: white;
+}
+
+/* ACCORDION DARK */
+
+.accordion-item {
+  background: #0d1117;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition: all .2s ease;
+}
+
+.accordion-header {
+  padding: 14px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #131720;
+  color: #e6edf3;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accordion-header::after {
+  content: "›";
+  font-size: 18px;
+  opacity: .6;
+  transition: transform .2s ease;
+}
+
+.accordion-item.active .accordion-header::after {
+  transform: rotate(90deg);
+}
+
+.accordion-content {
+  display: none;
+  padding: 16px;
+  background: #0b0f14;
+}
+
+.accordion-item.active .accordion-content {
+  display: block;
+  animation: fadeIn .25s ease;
+}
+
+/* FORM GRID */
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+/* Switch ajuste dark */
+
+.switch-desc {
+  color: rgba(230, 237, 243, 0.6);
 }

@@ -267,7 +267,11 @@ function log(msg) {
     if (!el) return;
 
     const line = document.createElement("div");
-    line.textContent = msg;
+    line.textContent = new Date().toLocaleDateString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }) + " | " +  msg;
     el.appendChild(line);
 
     // mantém no máximo 200 linhas

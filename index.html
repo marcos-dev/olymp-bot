@@ -72,88 +72,152 @@
         </div>
 
         <div class="config" id="configScreen">
-            <div class="section">
-                <label>URL da plataforma</label>
-                <input type="text" id="platformUrl" class="config-input" placeholder="https://site.com"
-                    value="https://olympmatix.com/app/dashboard" />
 
-                <label>Texto botão Iniciar</label>
-                <input type="text" id="startText" class="config-input" placeholder="Iniciar robô" value="Iniciar" />
+            <div class="accordion">
 
-                <label>Texto botão Parar</label>
-                <input type="text" id="stopText" class="config-input" placeholder="Parar robô" value="Parar" />
-            </div>
-            <div class="divider"></div>
-            <div class="section">
+                <!-- PLATAFORMA -->
+                <div class="accordion-item active">
+                    <div class="accordion-header">Plataforma</div>
+                    <div class="accordion-content">
 
-                <label for="balanceValue">Parar por saldo</label>
-                <input type="text" id="balanceValue" inputmode="decimal" placeholder="0,00" autocomplete="off" />
-            </div>
+                        <div class="form-group">
+                            <label>URL da plataforma</label>
+                            <input type="text" id="platformUrl" value="https://olympmatix.com/app/dashboard" />
+                        </div>
 
-            <div class="section">
-                <label for="lossValue">Para por Derrotas Seguidas</label>
-                <input type="number" id="lossValue" placeholder="Quantidade">
-            </div>
+                        <div class="form-row">
+                            <div>
+                                <label>Texto botão Iniciar</label>
+                                <input type="text" id="startText" value="Iniciar" />
+                            </div>
 
-            <div class="section">
-                <label for="stopTime">Parar por Tempo</label>
-                <input type="time" step="1" id="timeValue">
-            </div>
-            <!--Não faz sentido, era pra reiniciar o robô por perdas para saldo. Entra em loop infito porque o limite de perdas e saldo é o mesmo-->
-            <!-- <div class="section-switch">
-                <label class="switch">
-                    <input type="checkbox" id="restartSaldo">
-                    <span class="slider"></span>
-                </label>
+                            <div>
+                                <label>Texto botão Parar</label>
+                                <input type="text" id="stopText" value="Parar" />
+                            </div>
+                        </div>
 
-                <div class="switch-text">
-                    <div class="title">Reinício Automático Saldo</div>
-                    <div class="desc">Se o robô parar por saldo</div>
+                    </div>
                 </div>
-            </div> -->
-            <div class="section-switch">
-                <label class="switch">
-                    <input type="checkbox" id="restartPerdas">
-                    <span class="slider"></span>
-                </label>
 
-                <div class="switch-text">
-                    <div class="title">Reinício Automático Perdas</div>
-                    <div class="desc">Se o robô parar por perdas</div>
-                </div>
-            </div>
-            <div class="section-switch">
-                <label class="switch">
-                    <input type="checkbox" id="restartTempo">
-                    <span class="slider"></span>
-                </label>
+                <!-- ESTRATÉGIA -->
+                <div class="accordion-item">
+                    <div class="accordion-header">Estratégia</div>
+                    <div class="accordion-content">
 
-                <div class="switch-text">
-                    <div class="title">Reinício Automático Tempo</div>
-                    <div class="desc">Se o robô parar por tempo</div>
+                        <div class="form-row">
+                            <div>
+                                <label>Parar por saldo</label>
+                                <input type="text" id="balanceValue" inputmode="decimal" placeholder="0,00" />
+                            </div>
+
+                            <div>
+                                <label>Derrotas seguidas</label>
+                                <input type="number" id="lossValue" placeholder="Quantidade" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Parar por tempo</label>
+                            <input type="time" step="1" id="timeValue" />
+                        </div>
+
+                    </div>
                 </div>
+
+                <!-- REINÍCIO -->
+                <div class="accordion-item">
+                    <div class="accordion-header">Reinício Automático</div>
+                    <div class="accordion-content">
+
+                        <div class="switch-group">
+                            <label class="switch">
+                                <input type="checkbox" id="restartPerdas">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <div class="switch-title">Reinício por Perdas</div>
+                                <div class="switch-desc">Se o robô parar por perdas</div>
+                            </div>
+                        </div>
+
+                        <div class="switch-group">
+                            <label class="switch">
+                                <input type="checkbox" id="restartTempo">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <div class="switch-title">Reinício por Tempo</div>
+                                <div class="switch-desc">Se o robô parar por tempo</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
-            <br>
-            <button id="btn-save" class="btn-save" onclick="startMonitoring()">Iniciar Monitoramento</button>
-            <button id="btn-reset" class="btn-reset" onclick="resetConfig()">Limpar Configurações</button>
+
+            <div class="config-actions">
+                <button id="btn-save" class="btn-save" onclick="startMonitoring()">Iniciar Monitoramento</button>
+                <button id="btn-reset" class="btn-reset" onclick="resetConfig()">Limpar Configurações</button>
+            </div>
 
         </div>
 
         <div class="panel hidden" id="monitorScreen">
             <div class="section init-section">
                 <button class="btn-open">Iniciar Plataforma</button>
-                <br>
-                <br>
-                <p>Clique no botão acima para iniciar a plataforma <b>Olymp Matix</b>. Faça o login e depois, clique no
-                    favorito do agente
-                    do robô. Inicie o robô da <b>Olymp Matix</b> e deixe o monitoramento atuar.</p>
+
+                <button id="btnCopyFavorite" class="btn-copy">
+                    Copiar código do Agente
+                </button>
+
+                <br><br>
+
+                <div class="info-text">
+                    <b>Passo a passo para utilizar o robô:</b>
+
+                    <ol>
+                        <li>
+                            Clique em <b>Copiar código do Agente</b>.
+                            O botão ficará verde com ✓ Copiado.
+                        </li>
+
+                        <li>
+                            Abra o navegador (Chrome no Desktop ou Telefone).
+                        </li>
+
+                        <li>
+                            Crie um novo favorito (marcador).
+                        </li>
+
+                        <li>
+                            Edite o favorito e no campo de URL apague o conteúdo existente e cole o código copiado.
+                        </li>
+
+                        <li>
+                            Salve o favorito.
+                        </li>
+
+                        <li>
+                            Volte ao aplicativo e clique em <b>Iniciar Plataforma</b>.
+                        </li>
+
+                        <li>
+                            Dentro da plataforma, abra seus favoritos e toque no favorito (agente) criado.
+                        </li>
+
+                        <li>
+                            O monitoramento será ativado automaticamente.
+                        </li>
+                    </ol>
+                </div>
             </div>
 
             <div class="section status-section hidden">
                 <div class="status-line" style="justify-content: center;">
                     <span class="timer" id="timeLeft">00:00:00</span>
                 </div>
-                <br>
                 <div class="divider"></div>
                 <div class="status-line">
                     <span><b>Saldo Inicial</b></span>
@@ -219,7 +283,23 @@
             });
 
         }
+        document.querySelectorAll(".accordion-header").forEach(header => {
+            header.addEventListener("click", () => {
+
+                const item = header.parentElement;
+                const isActive = item.classList.contains("active");
+
+                document.querySelectorAll(".accordion-item")
+                    .forEach(i => i.classList.remove("active"));
+
+                if (!isActive) {
+                    item.classList.add("active");
+                }
+
+            });
+        });
     </script>
+
 </body>
 
 </html>

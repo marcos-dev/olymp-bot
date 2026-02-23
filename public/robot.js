@@ -20,15 +20,15 @@
     }
   });
 
-  
+
   let ignoreNextChange = false;
   window.addEventListener("message", (e) => {
 
     if (e.data?.type === "START_ROBOT") {
-        ignoreNextChange = true;
+      ignoreNextChange = true;
     }
 
-});
+  });
 
   window.__robotRunning = true;
 
@@ -122,59 +122,53 @@
   }
 
   /* =========================
-     DETECÇÃO POR VARIAÇÃO DE SALDO
+     DETECÇÃO POR VARIAÇÃO DE SALDO (VERSÃO ESTÁVEL)
   ========================= */
+
   let lastProcessedBalance = null;
-  let balanceCandidate = null;
-  let balanceTimer = null;
-  let processedBalances = new Set();
+  let lastResultTime = 0;
+
+  const MIN_OPERATION_INTERVAL = 45000; // 45s proteção
+  const MIN_VALID_CHANGE = 0.01; // evita micro variação
 
   function monitorBalanceChange() {
 
     const balance = extractBalance();
     if (balance == null) return;
 
-    // primeira leitura
+    const now = Date.now();
+
+    // Primeira leitura
     if (lastProcessedBalance === null) {
       lastProcessedBalance = balance;
       return;
     }
 
-    if (balance !== balanceCandidate) {
+    const diff = parseFloat((balance - lastProcessedBalance).toFixed(2));
 
-      balanceCandidate = balance;
+    // Saldo não mudou
+    if (Math.abs(diff) < MIN_VALID_CHANGE) return;
 
-      if (balanceTimer) clearTimeout(balanceTimer);
-
-      balanceTimer = setTimeout(() => {
-
-        // se já processamos esse saldo, ignora
-        if (processedBalances.has(balanceCandidate)) return;
-
-        if (balanceCandidate === lastProcessedBalance) return;
-
-        const result = balanceCandidate > lastProcessedBalance ? "WIN" : balanceCandidate < lastProcessedBalance ? "LOSS" : "DRAW";
-
-        lastProcessedBalance = balanceCandidate;
-        processedBalances.add(balanceCandidate);
-
-        console.log("Operação confirmada única:", result, balanceCandidate);
-
-        send("RESULT", {
-          result,
-          balance: balanceCandidate
-        });
-
-        // mantém apenas últimos 20 saldos para evitar crescimento infinito
-        if (processedBalances.size > 20) {
-          processedBalances = new Set(
-            Array.from(processedBalances).slice(-10)
-          );
-        }
-
-      }, 1500);
-
+    // Proteção contra duplicação rápida
+    if (now - lastResultTime < MIN_OPERATION_INTERVAL) {
+      return;
     }
+
+    let result = "DRAW";
+
+    if (diff > 0) result = "WIN";
+    if (diff < 0) result = "LOSS";
+
+    console.log("Operação confirmada:", result, balance);
+
+    lastProcessedBalance = balance;
+    lastResultTime = now;
+
+    send("RESULT", {
+      result,
+      balance: balance
+    });
+
   }
 
   setInterval(monitorBalanceChange, 350);
@@ -207,7 +201,15 @@
         setTimeout(tryStart, 700);
         return;
       }
+
       confirmModal();
+
+      // RESET DE CONTROLE
+      const current = extractBalance();
+      if (current != null) {
+        lastProcessedBalance = current;
+        lastResultTime = Date.now();
+      }
     }
 
     tryStart();

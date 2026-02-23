@@ -11,7 +11,10 @@ let autoRestartEnabled = false;
 let lastRobotActivity = Date.now();
 let restarting = false;
 let robotOperating = false;
+const favoriteCode = `javascript:(()=>{let s=document.createElement("script");s.src="https://marcos-dev.github.io/olymp-bot/public/robot.js?"+Date.now();document.body.appendChild(s)})();`;
+const btnCopy = document.getElementById("btnCopyFavorite");
 
+btnCopy.addEventListener("click", copyFavoriteCode);
 
 //Botão voltar para configurações
 document.getElementById("btn-back").addEventListener("click", () => {
@@ -36,6 +39,9 @@ window.addEventListener("load", () => {
 
 });
 
+document.getElementById("btnCopyFavorite")
+    .addEventListener("click", copyFavoriteCode);
+
 // Comunicação com o robot.js via mensagens
 window.addEventListener("message", (e) => {
     if (!e.data) return;
@@ -55,11 +61,7 @@ window.addEventListener("message", (e) => {
             stopText: cfg.stopText
         }, "*");
 
-        log(new Date().toLocaleDateString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        }) + " | " + 'Sessão iniciada' + " | " + currentBalance.toFixed(2));
+        log('Sessão iniciada' + " | " + currentBalance.toFixed(2));
 
         startRobotUi();
         iniciarTimer();
@@ -90,11 +92,7 @@ window.addEventListener("message", (e) => {
         atualizarUI(); // Garantir que a interface atualize após o resultado
 
         // Exibir log do resultado
-        log(new Date().toLocaleDateString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        }) + " | " + e.data.result + " | " + currentBalance.toFixed(2));
+        log(e.data.result + " | " + currentBalance.toFixed(2));
 
         // Verificar condições de parada após cada resultado
         checkStopConditions();
@@ -152,6 +150,30 @@ function abrirPlataforma() {
 
 }
 
+
+
+function copyFavoriteCode() {
+
+    navigator.clipboard.writeText(favoriteCode)
+        .then(() => {
+
+            btnCopy.classList.add("copied");
+            btnCopy.textContent = "✓ Copiado";
+
+            setTimeout(() => {
+                btnCopy.classList.remove("copied");
+                btnCopy.textContent = "Copiar código do Favorito";
+            }, 2000);
+
+        })
+        .catch(() => {
+            btnCopy.textContent = "Erro ao copiar";
+
+            setTimeout(() => {
+                btnCopy.textContent = "Copiar código do Favorito";
+            }, 2000);
+        });
+}
 function resetTimer() {
     endTime = null;
     if (timerInterval) clearInterval(timerInterval);
@@ -195,7 +217,7 @@ function parseTimeString(timeStr) {
     }
 
     if (parts.length === 2) {
-        return { h: 0, m: parts[0], s: parts[1] };
+        return { h: parts[0], m: parts[1], s: 0 }; // ← CORREÇÃO
     }
 
     return { h: 0, m: 0, s: 0 };
