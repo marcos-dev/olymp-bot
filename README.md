@@ -1,4 +1,4 @@
-<p align="center"> PWA para monitoramento e controle automático de robô na plataforma trader. </p> <p align="center"> <a href="https://marcos-dev.github.io/olymp-bot/"> <img src="https://img.shields.io/badge/demo-online-blue" /> </a> <img src="https://img.shields.io/badge/pwa-enabled-success" /> <img src="https://img.shields.io/badge/status-active-brightgreen" /> </p>
+<p align="center"> PWA para monitoramento e controle automático de robô em plataformas trader. </p> <p align="center"> <a href="https://marcos-dev.github.io/olymp-bot/"> <img src="https://img.shields.io/badge/demo-online-blue" /> </a> <img src="https://img.shields.io/badge/pwa-enabled-success" /> <img src="https://img.shields.io/badge/status-active-brightgreen" /> </p>
 
 🔗 Demo
 
