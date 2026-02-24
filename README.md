@@ -25,8 +25,8 @@ Acesse online:
 
 ## :information_source: Sobre
 
-Projeto de um robô trader em Javascript<br>
-Project for a Javascript trading robot.
+Projeto de um robô para stop loss em Javascript<br>
+Project for a Javascript stop loss robot.
 
 ## :rocket: Tecnologias
 
