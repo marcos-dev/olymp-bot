@@ -48,13 +48,19 @@
 
   function extractBalance() {
 
-    const el = [...document.querySelectorAll("div,span")]
-      .find(el => /^\$\d{1,3}(,\d{3})*\.\d{2}$/.test(el.innerText?.trim()));
+    const regex = /^(?:R\$|\$)\s?\d+(?:,\d{3})*\.\d{2}$/;
+
+    let el = [...document.querySelectorAll("div,span,h6")]
+      .find(el => regex.test(el.innerText?.trim()));
 
     if (!el) return null;
 
     return parseFloat(
-      el.innerText.replace("$", "").replace(/,/g, "")
+      el.innerText
+        .replace("R$", "")
+        .replace("$", "")
+        .replace(/,/g, "")
+        .trim()
     );
   }
 
@@ -75,8 +81,14 @@
         return;
       }
 
-      const balance = parseFloat(extractBalance().toFixed(2));
-      if (balance == null) return;
+      const extracted = extractBalance();
+
+      if (typeof extracted !== "number" || isNaN(extracted)) {
+        console.log("Saldo inválido, ignorando...");
+        return;
+      }
+
+      const balance = Number(extracted.toFixed(2));
 
       // saldo mudou → reinicia contagem
       if (balance !== initCandidate) {
@@ -122,21 +134,21 @@
   }
 
   /* =========================
-     DETECÇÃO POR VARIAÇÃO DE SALDO (VERSÃO ESTÁVEL)
-  ========================= */
+    DETECÇÃO POR VARIAÇÃO DE SALDO (VERSÃO ESTÁVEL)
+ ========================= */
 
   let lastProcessedBalance = null;
-  let lastResultTime = 0;
+  let balanceCandidate = null;
+  let balanceTimer = null;
+  let processedBalances = new Set();
 
-  const MIN_OPERATION_INTERVAL = 45000; // 45s proteção
-  const MIN_VALID_CHANGE = 0.01; // evita micro variação
+  let lastOperationTimestamp = 0;
+  const MIN_OPERATION_INTERVAL = 60000; // 1 minuto
 
   function monitorBalanceChange() {
 
     const balance = extractBalance();
     if (balance == null) return;
-
-    const now = Date.now();
 
     // Primeira leitura
     if (lastProcessedBalance === null) {
@@ -144,31 +156,59 @@
       return;
     }
 
-    const diff = parseFloat((balance - lastProcessedBalance).toFixed(2));
+    if (balance !== balanceCandidate) {
 
-    // Saldo não mudou
-    if (Math.abs(diff) < MIN_VALID_CHANGE) return;
+      balanceCandidate = balance;
 
-    // Proteção contra duplicação rápida
-    if (now - lastResultTime < MIN_OPERATION_INTERVAL) {
-      return;
+      if (balanceTimer) clearTimeout(balanceTimer);
+
+      // Pequena confirmação de estabilidade (1.5s)
+      balanceTimer = setTimeout(() => {
+
+        const now = Date.now();
+
+        // 🔒 BLOQUEIO DE INTERVALO MÍNIMO
+        if (now - lastOperationTimestamp < MIN_OPERATION_INTERVAL) {
+          console.log("Ignorado - dentro do intervalo mínimo");
+          return;
+        }
+
+        // 🔒 Evita duplicidade de saldo
+        if (processedBalances.has(balanceCandidate)) {
+          console.log("Ignorado - saldo já processado");
+          return;
+        }
+
+        if (balanceCandidate === lastProcessedBalance) {
+          return;
+        }
+
+        const result =
+          balanceCandidate > lastProcessedBalance ? "WIN" :
+            balanceCandidate < lastProcessedBalance ? "LOSS" :
+              "DRAW";
+
+        lastProcessedBalance = balanceCandidate;
+        processedBalances.add(balanceCandidate);
+        lastOperationTimestamp = now;
+
+        console.log("Operação confirmada:", result, balanceCandidate);
+
+        send("RESULT", {
+          result,
+          balance: balanceCandidate
+        });
+
+        // Limita tamanho do Set
+        if (processedBalances.size > 20) {
+          processedBalances = new Set(
+            Array.from(processedBalances).slice(-10)
+          );
+        }
+
+      }, 1500);
+
     }
-
-    let result = "DRAW";
-
-    if (diff > 0) result = "WIN";
-    if (diff < 0) result = "LOSS";
-
-    console.log("Operação confirmada:", result, balance);
-
-    lastProcessedBalance = balance;
-    lastResultTime = now;
-
-    send("RESULT", {
-      result,
-      balance: balance
-    });
-
   }
 
   setInterval(monitorBalanceChange, 350);
@@ -192,6 +232,7 @@
       clickButtonByText("confirm") || clickButtonByText("sim") || clickButtonByText("ok") || clickButtonByText("yes");
     }, 900);
   }
+
 
   function startRobot() {
     console.log("Tentando iniciar robô...");
