@@ -1,5 +1,7 @@
 let currentBalance = 0;
 let initialBalance = null;
+let restartCountdown = null;
+let restartInterval = null;
 let running = false;
 let robotWindow = null;
 let timerInterval = null;
@@ -11,6 +13,8 @@ let autoRestartEnabled = false;
 let lastRobotActivity = Date.now();
 let restarting = false;
 let robotOperating = false;
+let watchdogInterval = null;
+let lastOperationTime = Date.now();
 const favoriteCode = `javascript:(()=>{let s=document.createElement("script");s.src="https://marcos-dev.github.io/olymp-bot/public/robot.js?"+Date.now();document.body.appendChild(s)})();`;
 const btnCopy = document.getElementById("btnCopyFavorite");
 
@@ -73,6 +77,8 @@ window.addEventListener("message", (e) => {
 
     if (e.data.type === "RESULT") {
 
+        lastOperationTime = Date.now();
+
         if (initialBalance === null && manualStop === false) {
             startNewSession(e.data.balance);
         }
@@ -119,6 +125,8 @@ setInterval(() => {
     }
 
 }, 3000);
+
+
 
 
 function startNewSession(balance) {
@@ -179,6 +187,36 @@ function resetTimer() {
     if (timerInterval) clearInterval(timerInterval);
 }
 
+function startRestartTimer(minutes) {
+
+    const box = document.getElementById("restartTimerBox");
+    const label = document.getElementById("restartTimer");
+
+    let remaining = minutes * 60;
+
+    box.classList.remove("hidden");
+
+    if (restartInterval) clearInterval(restartInterval);
+
+    restartInterval = setInterval(() => {
+
+        const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+        const s = String(remaining % 60).padStart(2, '0');
+
+        label.innerText = `${m}:${s}`;
+
+        remaining--;
+
+        if (remaining < 0) {
+
+            clearInterval(restartInterval);
+            box.classList.add("hidden");
+
+        }
+
+    }, 1000);
+}
+
 // Função para iniciar o timer (mantém no robot.js)
 function iniciarTimer() {
 
@@ -225,22 +263,33 @@ function parseTimeString(timeStr) {
 
 // Verificar as condições de parada
 function checkStopConditions() {
-
+    debugger
     if (!running) return;
 
     const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");
 
-    // --- STOP POR SALDO ---
+    // --- STOP POR SALDO LUCRO ---
+    if (cfg.lucro && currentBalance >= cfg.lucro) {
+        stopRobot("Stop Win atingido", "saldo");
+        return;
+    }
+
+
+    // --- STOP POR SALDO PERDAS ---
     if (cfg.valor && currentBalance <= cfg.valor) {
         stopRobot("Stop Loss atingido", "saldo");
         return;
     }
 
-    // --- TAKE PROFIT ---
-    // if (cfg.stopWin && winStreak >= cfg.ganhos) {
-    //     stopRobot("Take Profit atingido", true);
-    //     return;
-    // }
+    // --- STOP LOSS POR VITORIAS ---
+    if (cfg.vitorias && winStreak >= cfg.vitorias) {
+        stopRobot("Máximo de vitórias seguidas atingido", "vitorias");
+        winStreak = 0;
+        lossStreak = 0;
+        atualizarUI();
+        return;
+
+    }
 
     // --- STOP LOSS POR PERDAS ---
     if (cfg.perdas && lossStreak >= cfg.perdas) {
@@ -265,6 +314,11 @@ function startRobot() {
     robotOperating = true;
     running = true;  // ← começa aqui
     lastRobotActivity = Date.now();
+    startWatchdog();
+    lastOperationTime = Date.now();
+
+    winStreak = 0;
+    lossStreak = 0;
 
     robotWindow.postMessage({
         type: "START_ROBOT"
@@ -277,10 +331,17 @@ function startRobot() {
 
 function restartRobot() {
 
+
     if (!robotWindow || robotWindow.closed) {
         log("Janela fechada — não é possível reiniciar");
         return;
     }
+
+    if (restartInterval) clearInterval(restartInterval);
+
+
+    const box = document.getElementById("restartTimerBox");
+    if (box) box.classList.add("hidden");
 
     // força sincronização de saldo
     initialBalance = currentBalance;
@@ -316,6 +377,10 @@ function stopRobot(reason, stopType) {
         robotWindow.postMessage({ type: "STOP" }, "*");
     }
 
+    if (watchdogInterval) {
+        clearInterval(watchdogInterval);
+    }
+
     // DESCONEXÃO NUNCA reinicia
     if (stopType === "desconexao") {
         log("Aguardando ação do usuário...");
@@ -327,12 +392,47 @@ function stopRobot(reason, stopType) {
 
     const allowRestart =
         // (stopType === "saldo" && cfg.restart?.saldo) ||
+        (stopType === "vitorias" && cfg.restart?.vitorias) ||
         (stopType === "perdas" && cfg.restart?.perdas) ||
         (stopType === "tempo" && cfg.restart?.tempo);
 
     if (allowRestart) {
-        log("🔄 Reinício automático autorizado para: " + stopType);
-        setTimeout(restartRobot, 3000); // Reinicia após 3 segundos
+
+        let delayMinutes = 0;
+
+        if (stopType === "vitorias") {
+            delayMinutes = cfg.restartDelay?.vitorias || 0;
+        }
+
+        if (stopType === "perdas") {
+            delayMinutes = cfg.restartDelay?.perdas || 0;
+        }
+
+        if (stopType === "tempo") {
+            delayMinutes = cfg.restartDelay?.tempo || 0;
+        }
+
+        if (delayMinutes > 0) {
+
+            const delayMs = delayMinutes * 60000;
+
+            log("⏳ Reinício automático em " + delayMinutes + " minuto(s)");
+
+            startRestartTimer(delayMinutes);
+
+            setTimeout(() => {
+
+                log("🔄 Reiniciando robô...");
+                restartRobot();
+
+            }, delayMs);
+
+        } else {
+
+            log("🔄 Reinício automático imediato");
+            setTimeout(restartRobot, 3000);
+
+        }
     }
 
     running = true;
@@ -347,4 +447,41 @@ function stopManual(reason) {
     allowRestart = false; // Impede reinício automático após parada manual
     stopRobot(reason ? reason : "Parado pelo usuário", false);
     resetTimer(); // Permitir reiniciar manualmente após parar
+}
+
+
+function startWatchdog() {
+
+    const MAX_IDLE_TIME = 180000; // 3 minutos
+
+    if (watchdogInterval) clearInterval(watchdogInterval);
+
+    watchdogInterval = setInterval(() => {
+
+        if (!running) return;
+
+        const now = Date.now();
+        const diff = now - lastOperationTime;
+
+        if (diff > MAX_IDLE_TIME) {
+
+            log("⚠️ Possível travamento detectado");
+
+            log("🔄 Reiniciando robô automaticamente");
+
+            stopRobot("Watchdog parado", "watchdog");
+
+            // setTimeout(() => {
+            //     restartRobot();
+
+            // }, 4000);
+
+            // setTimeout(() => {
+            //     stopRobot("Watchdog parado", "watchdog");
+
+            // }, 9000);
+        }
+
+    }, 10000);
+
 }

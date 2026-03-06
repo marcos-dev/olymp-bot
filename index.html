@@ -107,19 +107,29 @@
 
                         <div class="form-row">
                             <div>
-                                <label>Parar por saldo</label>
+                                <label>Parar por saldo (perdas)</label>
                                 <input type="text" id="balanceValue" inputmode="decimal" placeholder="0,00" />
+                                <div class="switch-desc">Informe o saldo alvo mínimo da conta</div>
                             </div>
-
+                            <div>
+                                <label>Parar por saldo (lucro)</label>
+                                <input type="text" id="profitValue" inputmode="decimal" placeholder="0,00" />
+                                <div class="switch-desc">Informe o saldo alvo máximo da conta</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Parar por tempo de execução</label>
+                            <input type="time" step="1" id="timeValue" />
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label>Vitórias seguidas</label>
+                                <input type="number" id="winValue" placeholder="Quantidade" />
+                            </div>
                             <div>
                                 <label>Derrotas seguidas</label>
                                 <input type="number" id="lossValue" placeholder="Quantidade" />
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Parar por tempo</label>
-                            <input type="time" step="1" id="timeValue" />
                         </div>
 
                     </div>
@@ -129,6 +139,17 @@
                 <div class="accordion-item">
                     <div class="accordion-header">Reinício Automático</div>
                     <div class="accordion-content">
+
+                        <div class="switch-group">
+                            <label class="switch">
+                                <input type="checkbox" id="restartVitorias">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <div class="switch-title">Reinício por Vitórias</div>
+                                <div class="switch-desc">Se o robô parar por vitórias</div>
+                            </div>
+                        </div>
 
                         <div class="switch-group">
                             <label class="switch">
@@ -149,6 +170,24 @@
                             <div>
                                 <div class="switch-title">Reinício por Tempo</div>
                                 <div class="switch-desc">Se o robô parar por tempo</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label>Reinício após vitórias seguidas (minutos)</label>
+                                <input type="number" id="restartDelayWin" placeholder="Ex: 10">
+                            </div>
+                            <div>
+                                <label>Reinício após perdas seguidas (minutos)</label>
+                                <input type="number" id="restartDelayLoss" placeholder="Ex: 10">
+                            </div>
+
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label>Reinício após tempo de execução (minutos)</label>
+                                <input type="number" id="restartDelayTime" placeholder="Ex: 5">
                             </div>
                         </div>
 
@@ -219,6 +258,11 @@
                     <span class="timer" id="timeLeft">00:00:00</span>
                 </div>
                 <div class="divider"></div>
+                <div class="status-line hidden" id="restartTimerBox">
+                    <span><b>Reinício em</b></span>
+                    <span id="restartTimer">00:00</span>
+                </div>
+                <div class="divider"></div>
                 <div class="status-line">
                     <span><b>Saldo Inicial</b></span>
                     <span id="balance">$0.00</span>
@@ -228,8 +272,12 @@
                     <span id="currentBalance">$0.00</span>
                 </div>
                 <div class="status-line">
-                    <span><b>Saldo Alvo (stop)</b></span>
+                    <span><b>Saldo Perdas (stop)</b></span>
                     <span id="targetBalance" style="color: red;">$0.00</span>
+                </div>
+                <div class="status-line">
+                    <span><b>Saldo Lucro (stop)</b></span>
+                    <span id="targetProfit" style="color: green;">$0.00</span>
                 </div>
 
                 <div class="status-line">

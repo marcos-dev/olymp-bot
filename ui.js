@@ -1,6 +1,8 @@
 // Referências aos elementos
+const profitInput = document.getElementById('profitValue');
 const balanceInput = document.getElementById('balanceValue');
 const lossInput = document.getElementById('lossValue');
+const winInput = document.getElementById('winValue');
 const timeInput = document.getElementById('timeValue');
 const saveButton = document.getElementById('btn-save');
 const resetButton = document.getElementById('btn-reset');
@@ -15,7 +17,11 @@ const startText = document.getElementById('startText');
 const stopText = document.getElementById('stopText');
 //const restartSaldo = document.getElementById('restartSaldo');
 const restartPerdas = document.getElementById('restartPerdas');
+const restartVitorias = document.getElementById('restartVitorias');
 const restartTempo = document.getElementById('restartTempo');
+const restartDelayWin = document.getElementById('restartDelayWin');
+const restartDelayLoss = document.getElementById('restartDelayLoss');
+const restartDelayTime = document.getElementById('restartDelayTime');
 
 // Função para abrir a plataforma
 function abrirPlataforma() {
@@ -41,6 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const balanceInput = document.getElementById("balanceValue");
     setupMoneyInput(balanceInput);
 
+    const profitInput = document.getElementById("profitValue");
+    setupMoneyInput(profitInput);
 });
 
 document.getElementById("clearLogBtn")?.addEventListener("click", () => {
@@ -61,6 +69,12 @@ function carregarConfiguracoes() {
                 ? config.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
                 : '';
 
+        document.getElementById('profitValue').value =
+            config.lucro != null
+                ? config.lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                : '';
+
+        winInput.value = config.vitorias || '';
         lossInput.value = config.perdas || '';
         timeInput.value = config.time || '';
         platformUrl.value = config.platformUrl || "";
@@ -68,10 +82,13 @@ function carregarConfiguracoes() {
         stopText.value = config.stopText || "Parar robô";
 
         //restartSaldo.checked = config.restart?.saldo ?? false;
+        restartVitorias.checked = config.restart?.vitorias ?? false;
         restartPerdas.checked = config.restart?.perdas ?? false;
         restartTempo.checked = config.restart?.tempo ?? false;
 
-
+        restartDelayWin.value = config.restartDelay?.vitorias || '';
+        restartDelayLoss.value = config.restartDelay?.perdas || '';
+        restartDelayTime.value = config.restartDelay?.tempo || '';
     }
 }
 
@@ -83,7 +100,9 @@ function saveConfig() {
     const config = {
         criterios: criteriosSelecionados,
         valor: parseCurrencyBR(balanceInput.value),
+        lucro: parseCurrencyBR(profitInput.value),
         perdas: parseInt(lossInput.value),
+        vitorias: parseInt(winInput.value),
         time: timeInput.value,
         platformUrl: document.getElementById('platformUrl').value,
         startText: document.getElementById('startText').value,
@@ -91,8 +110,14 @@ function saveConfig() {
 
         restart: {
             //saldo: restartSaldo.checked,
+            vitorias: restartVitorias.checked,
             perdas: restartPerdas.checked,
             tempo: restartTempo.checked
+        },
+        restartDelay: {
+            vitorias: parseInt(restartDelayWin.value) || 0,
+            perdas: parseInt(restartDelayLoss.value) || 0,
+            tempo: parseInt(restartDelayTime.value) || 0
         }
     };
 
@@ -106,14 +131,21 @@ function resetConfig() {
     localStorage.removeItem('robotConfig');
     document.querySelectorAll('input[name="criterio"]').forEach(cb => cb.checked = false);
     balanceInput.value = '';
+    profitInput.value = '';
     lossInput.value = '';
+    winInput.value = '';
     timeInput.value = '';
     platformUrl.value = '';
     startText.value = 'Iniciar robô';
     stopText.value = 'Parar robô';
-   // restartSaldo.checked = false;
+    // restartSaldo.checked = false;
+    restartVitorias.checked = false;
     restartPerdas.checked = false;
     restartTempo.checked = false;
+
+    restartDelayWin.value = '';
+    restartDelayLoss.value = '';
+    restartDelayTime.value = '';
 
     alert('Configurações resetadas!');
 }
@@ -238,6 +270,9 @@ function startMonitoringUi() {
     document.querySelector('.app-title').textContent = "Monitoramento";
 
     document.getElementById('targetBalance').innerText = parseCurrencyBR(document.getElementById('balanceValue').value).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    document.getElementById('targetProfit').innerText = parseCurrencyBR(document.getElementById('profitValue').value).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+
 
 }
 
@@ -268,10 +303,10 @@ function log(msg) {
 
     const line = document.createElement("div");
     line.textContent = new Date().toLocaleDateString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        }) + " | " +  msg;
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    }) + " | " + msg;
     el.appendChild(line);
 
     // mantém no máximo 200 linhas
