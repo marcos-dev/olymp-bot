@@ -314,6 +314,7 @@
 
   });
 
+
   /* ========================= */
 
   alert("Monitoramento inteligente ativo");
