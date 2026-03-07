@@ -30,7 +30,21 @@
 
   });
 
+  window.addEventListener("message", (e) => {
+    if (!e.data) return;
+
+    if (e.data.type === "CHECK_ROBOT_STATE") {
+
+      const running = isRobotRunning();
+
+      send("ROBOT_STATE", { running: running });
+
+    }
+  });
+
   window.__robotRunning = true;
+
+
 
   /* =========================
      COMUNICAÇÃO COM O PWA
@@ -263,7 +277,19 @@
       confirmModal();
     }
   }
+  function isRobotRunning() {
 
+    const btn = [...document.querySelectorAll("button")]
+      .find(b =>
+        b.innerText.trim().toLowerCase().includes(STOP_LABEL) ||
+        b.innerText.trim().toLowerCase().includes("stop")
+      );
+
+    if (!btn) return false;
+
+    return true;
+
+  }
   /* =========================
      RECEBER COMANDOS DO PWA
   ========================= */

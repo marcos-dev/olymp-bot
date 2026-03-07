@@ -56,13 +56,17 @@ window.addEventListener("message", (e) => {
         initialBalance = e.data.value;
 
         running = true;
-        robotOperating = true;
+
         const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");
 
         robotWindow.postMessage({
             type: "CONFIG",
             startText: cfg.startText,
             stopText: cfg.stopText
+        }, "*");
+
+        robotWindow.postMessage({
+            type: "CHECK_ROBOT_STATE"
         }, "*");
 
         log('Sessão iniciada' + " | " + currentBalance.toFixed(2));
@@ -75,9 +79,24 @@ window.addEventListener("message", (e) => {
         checkStopConditions();
     }
 
+    if (e.data.type === "ROBOT_STATE") {
+
+        robotOperating = e.data.running;
+        
+        startRobotUi();
+
+        if (running) {
+            console.log("Robô já estava em execução");
+        } else {
+            console.log("Robô parado");
+        }
+
+    }
+
     if (e.data.type === "RESULT") {
 
         lastOperationTime = Date.now();
+        robotOperating = true;
 
         if (initialBalance === null && manualStop === false) {
             startNewSession(e.data.balance);
@@ -107,6 +126,14 @@ window.addEventListener("message", (e) => {
 
 
 });
+
+setInterval(() => {
+    if (robotWindow) {
+        robotWindow.postMessage({
+            type: "CHECK_ROBOT_STATE"
+        }, "*");
+    }
+}, 3000);
 
 //watchdog
 // WATCHDOG — parada de segurança
@@ -263,7 +290,7 @@ function parseTimeString(timeStr) {
 
 // Verificar as condições de parada
 function checkStopConditions() {
-    debugger
+
     if (!running) return;
 
     const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");

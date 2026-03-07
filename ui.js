@@ -234,7 +234,7 @@ function startRobotUi() {
     document.querySelector('.status-section').classList.remove('hidden');
     document.querySelector('.log-section').classList.remove('hidden');
 
-    if (running || robotOperating) {
+    if (running && robotOperating) {
         // Esconde botão de start e mostra o de stop
         document.getElementById('btn-stop').classList.remove('hidden');
         document.getElementById('btn-start').classList.add('hidden');
@@ -293,6 +293,7 @@ function stopMonitoringUi() {
     document.querySelector('.app-title').textContent = "Configuração";
 
 }
+
 
 //Exibe logs
 
