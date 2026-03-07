@@ -15,7 +15,7 @@ let restarting = false;
 let robotOperating = false;
 let watchdogInterval = null;
 let lastOperationTime = Date.now();
-const favoriteCode = `javascript:(()=>{let s=document.createElement("script");s.src="https://marcos-dev.github.io/olymp-bot/public/robot.js?"+Date.now();document.body.appendChild(s)})();`;
+const favoriteCode = `javascript:(function(){var s=document.createElement('script');s.src='https://marcos-dev.github.io/olymp-bot/public/robot.js?'+Date.now();(document.head||document.documentElement).appendChild(s);})();`;
 const btnCopy = document.getElementById("btnCopyFavorite");
 
 btnCopy.addEventListener("click", copyFavoriteCode);
