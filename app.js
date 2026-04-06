@@ -390,7 +390,6 @@ function restartRobot() {
 }
 
 
-
 // Parar o robô (envia mensagem ao robot.js)
 function stopRobot(reason, stopType) {
 

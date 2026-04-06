@@ -13,8 +13,8 @@
     if (!e.data) return;
 
     if (e.data.type === "CONFIG") {
-      START_LABEL = (e.data.startText || "iniciar").toLowerCase();
-      STOP_LABEL = (e.data.stopText || "parar").toLowerCase();
+      START_LABEL = (e.data.startText || "iniciar" || "start").toLowerCase();
+      STOP_LABEL = (e.data.stopText || "parar" || "stop").toLowerCase();
 
       console.log("Config recebida:", START_LABEL, STOP_LABEL);
     }
@@ -244,7 +244,7 @@
   function confirmModal() {
     setTimeout(() => {
       clickButtonByText("confirm") || clickButtonByText("sim") || clickButtonByText("ok") || clickButtonByText("yes");
-    }, 900);
+    }, 1000);
   }
 
 
