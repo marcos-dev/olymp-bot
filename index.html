@@ -194,6 +194,25 @@
                     </div>
                 </div>
 
+                <!-- ALERTAS -->
+                <div class="accordion-item">
+                    <div class="accordion-header">Alertas</div>
+                    <div class="accordion-content">
+
+                        <div class="switch-group">
+                            <label class="switch">
+                                <input type="checkbox" id="alertSound">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <div class="switch-title">Alerta sonoro de desconexão</div>
+                                <div class="switch-desc">Emite um sinal sonoro se a sessão cair ou perder a conexão com o robô</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
             <div class="config-actions">
@@ -301,6 +320,7 @@
                 <br>
                 <button id="btn-start" class="btn-save" onclick="startRobot()">Iniciar Robô</button>
                 <button id="btn-stop" class="btn-stop" onclick="stopManual()">Parar Robô</button>
+                <button id="btn-silence" class="btn-stop hidden" onclick="stopDisconnectAlert()">🔇 Silenciar alerta</button>
 
             </div>
 

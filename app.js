@@ -390,6 +390,76 @@ function restartRobot() {
 }
 
 
+// Alerta sonoro em loop (toca até o usuário silenciar)
+let alertCtx = null;
+let alertLoopTimer = null;
+
+function playDisconnectAlert() {
+
+    const cfg = JSON.parse(localStorage.getItem("robotConfig") || "{}");
+    if (!cfg.alertSound) return;
+
+    // se já está tocando, não reinicia
+    if (alertLoopTimer) return;
+
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+
+    try {
+        alertCtx = new Ctx();
+    } catch (err) {
+        console.error("Erro ao iniciar AudioContext:", err);
+        return;
+    }
+
+    const beepBurst = () => {
+
+        if (!alertCtx) return;
+
+        for (let i = 0; i < 3; i++) {
+
+            const osc = alertCtx.createOscillator();
+            const gain = alertCtx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.value = 880;
+
+            osc.connect(gain);
+            gain.connect(alertCtx.destination);
+
+            const start = alertCtx.currentTime + i * 0.4;
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(0.4, start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+
+            osc.start(start);
+            osc.stop(start + 0.35);
+        }
+    };
+
+    beepBurst();
+    alertLoopTimer = setInterval(beepBurst, 1500);
+
+    const btn = document.getElementById("btn-silence");
+    if (btn) btn.classList.remove("hidden");
+}
+
+function stopDisconnectAlert() {
+
+    if (alertLoopTimer) {
+        clearInterval(alertLoopTimer);
+        alertLoopTimer = null;
+    }
+
+    if (alertCtx) {
+        try { alertCtx.close(); } catch (e) { /* noop */ }
+        alertCtx = null;
+    }
+
+    const btn = document.getElementById("btn-silence");
+    if (btn) btn.classList.add("hidden");
+}
+
 // Parar o robô (envia mensagem ao robot.js)
 function stopRobot(reason, stopType) {
 
@@ -398,6 +468,10 @@ function stopRobot(reason, stopType) {
     log("🚨 " + reason);
 
     stopRobotUi();
+
+    if (stopType === "desconexao" || stopType === "watchdog") {
+        playDisconnectAlert();
+    }
 
     if (robotWindow && !robotWindow.closed) {
         robotWindow.postMessage({ type: "STOP" }, "*");

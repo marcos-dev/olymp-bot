@@ -22,6 +22,7 @@ const restartTempo = document.getElementById('restartTempo');
 const restartDelayWin = document.getElementById('restartDelayWin');
 const restartDelayLoss = document.getElementById('restartDelayLoss');
 const restartDelayTime = document.getElementById('restartDelayTime');
+const alertSound = document.getElementById('alertSound');
 
 // Função para abrir a plataforma
 function abrirPlataforma() {
@@ -89,6 +90,8 @@ function carregarConfiguracoes() {
         restartDelayWin.value = config.restartDelay?.vitorias || '';
         restartDelayLoss.value = config.restartDelay?.perdas || '';
         restartDelayTime.value = config.restartDelay?.tempo || '';
+
+        alertSound.checked = config.alertSound ?? false;
     }
 }
 
@@ -118,7 +121,8 @@ function saveConfig() {
             vitorias: parseInt(restartDelayWin.value) || 0,
             perdas: parseInt(restartDelayLoss.value) || 0,
             tempo: parseInt(restartDelayTime.value) || 0
-        }
+        },
+        alertSound: alertSound.checked
     };
 
     localStorage.setItem('robotConfig', JSON.stringify(config));
@@ -146,6 +150,8 @@ function resetConfig() {
     restartDelayWin.value = '';
     restartDelayLoss.value = '';
     restartDelayTime.value = '';
+
+    alertSound.checked = false;
 
     alert('Configurações resetadas!');
 }
